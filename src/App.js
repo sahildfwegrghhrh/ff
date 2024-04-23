@@ -1,49 +1,69 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-const MyForm = () => {
-  
-  const [formData, setFormData] = useState({ name: '', description: '' });
+function FileUpload() {
+  const [imageFiles, setImageFiles] = useState(null);
+  const [regularFiles, setRegularFiles] = useState(null);
+  const [regular, setRegular] = useState(null);
+  const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleImageChange = (event) => {
+    setImageFiles(event.target.files);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      console.log('Form data:', formData);
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      console.log('Response:', response);
-      if (response.ok) {
-        console.log('Data sent to MongoDB!');
-        alert('Data sent to MongoDB!');
-      } else {
-        throw new Error('Failed to send data to MongoDB');
+  const handleRegularFileChange = (event) => {
+    setRegularFiles(event.target.files);
+  };
+
+  const handleRegular = (event) => {
+    setRegular(event.target.files);
+  };
+
+  const handleUpload = async () => {
+    const formData = new FormData();
+
+    if (imageFiles) {
+      for (const file of imageFiles) {
+        formData.append('imageFiles', file);
+
       }
+    }
+
+    if (regularFiles) {
+      for (const file of regularFiles) {
+        formData.append('regularFiles', file);
+      }
+    }
+
+    if (regular) {
+      for (const file of regular) {
+        formData.append('regular', file);
+      }
+    }
+
+    try {
+      const response = await axios.post('http://localhost:4000/api', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setMessage(response.data.message);
+      console.log("data", response.data)
     } catch (error) {
-      console.error(error);
-      alert('Error sending data to MongoDB');
+      setMessage('Error uploading files.');
+      console.error('Error uploading files:', error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" />
-      <input type="text" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
-      <button type="submit">Submit</button>
-    </form>
+    <div>
+      <input type="file" multiple onChange={handleImageChange} accept="image/*" />
+      <input type="file" multiple onChange={handleRegularFileChange} />
+      <input type="file" multiple onChange={handleRegular} />
+      <button onClick={handleUpload}>Upload</button>
+      {message && <p>{message}</p>}
+    </div>
   );
-};
+}
 
-export default MyForm;
-
-
-
-
-
+export default FileUpload;

@@ -4,8 +4,7 @@
   "description": "A Node.js application for handling Shopify registrations",
   "main": "app.jsx",
   "scripts": {
-    "start": "node app.jsx",
-    "build": "react-scripts build"
+    "start": "node app.jsx"
   },
   "dependencies": {
     "cors": "^2.8.5",
